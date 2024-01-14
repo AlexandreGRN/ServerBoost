@@ -8,11 +8,14 @@
 #include <iostream>
 #include <memory>
 #include <string>
-
-class Server : public std::enable_shared_from_this<Server>
+#include <thread>
+#include <set>
+template<typename ConnectionManager>
+class ServerConnection : public std::enable_shared_from_this<ServerConnection<ConnectionManager>>
 {
 public:
-    Server(boost::asio::ip::tcp::socket socket) : socket_(std::move(socket)){}
+    ServerConnection(boost::asio::ip::tcp::socket socket, ConnectionManager connection_man) : socket_(std::move(socket)), connection_man(connection_man){}
+    ~ServerConnection() = default;
 
     // Start server
     void start()
@@ -29,11 +32,12 @@ private:
     boost::beast::http::request<boost::beast::http::dynamic_body>     request_;
     boost::beast::http::response<boost::beast::http::dynamic_body>    response_;
     boost::asio::steady_timer                                         deadline_ {socket_.get_executor(), std::chrono::seconds(60) };
+    ConnectionManager                                                 connection_man;
 
     // Read request
     void read_request()
     {
-        std::shared_ptr<Server> self = shared_from_this();
+        std::shared_ptr<ServerConnection> self = this->shared_from_this();
 
         // Wait for a request and process it | async_read(read stream, buffer, the request, handler)
         boost::beast::http::async_read(socket_, buffer_, request_, [self](boost::beast::error_code ec, std::size_t bytes_transferred)
@@ -86,9 +90,11 @@ private:
     // Transmit the response message.
     void write_response()
     {
-        std::shared_ptr<Server> self = shared_from_this();
+        std::shared_ptr<ServerConnection> self = this->shared_from_this();
 
         response_.content_length(response_.body().size());
+
+        connection_man.remove_connection(this->shared_from_this());
 
         boost::beast::http::async_write(
             socket_,
@@ -103,7 +109,7 @@ private:
     // Check whether we have spent enough time on this connection.
     void check_deadline()
     {
-        std::shared_ptr<Server> self = shared_from_this();
+        std::shared_ptr<ServerConnection> self = this->shared_from_this();
 
         // Close server if deadline is reached
         deadline_.async_wait([self](boost::beast::error_code ec){
@@ -113,16 +119,64 @@ private:
     }
 };
 
-// Loop forever accepting new connections.
-void http_server(boost::asio::ip::tcp::acceptor& acceptor, boost::asio::ip::tcp::socket& socket)
+class ConnectionManager
 {
-    acceptor.async_accept(socket, [&](boost::beast::error_code ec)
+public:
+    ConnectionManager() = default;
+    ~ConnectionManager() = default;
+
+    // Add a connection
+    void add_new_connection(auto socket)
     {
-        if(!ec)
-            std::make_shared<Server>(std::move(socket))->start();
+        std::shared_ptr<ServerConnection<ConnectionManager>> connection = std::make_shared<ServerConnection<ConnectionManager>>(std::move(socket), *this);
+        connections.insert(connection.get());
+        connection->start();
+    }
+
+    // Remove a connection
+    void remove_connection(std::shared_ptr<ServerConnection<ConnectionManager>> connection)
+    {
+        connections.erase(connection.get());
+        std::cout << "Connection removed: " << connections.size() << std::endl;
+    }
+
+private:
+    std::set<ServerConnection<ConnectionManager>*> connections;
+};
+
+
+class Server
+{
+public:
+
+    Server() = default;
+    ~Server() = default;
+
+    // Loop forever accepting new connections.
+    void http_server(boost::asio::ip::tcp::acceptor& acceptor, boost::asio::ip::tcp::socket& socket)
+    {
+        // Make a new connection
+        acceptor.async_accept(socket, [&](boost::beast::error_code ec)
+        {
+            if(!ec)
+                connection_manager.add_new_connection(std::move(socket));
+            http_server(acceptor, socket);
+        });
+    }
+
+    void startServer(auto adress, auto port)
+    {
+        boost::asio::io_context ioc{1};
+        boost::asio::ip::tcp::acceptor acceptor{ioc, {boost::asio::ip::tcp::v4(), 1025}};
+        boost::asio::ip::tcp::socket socket{ioc};
+
         http_server(acceptor, socket);
-    });
-}
+        ioc.run();
+    }
+
+private:
+    ConnectionManager connection_manager;
+};
 
 int main(int argc, char* argv[])
 {
@@ -136,16 +190,8 @@ int main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        auto const address = boost::asio::ip::make_address(argv[1]);
-        unsigned short port = static_cast<unsigned short>(std::atoi(argv[2]));
-
-        boost::asio::io_context ioc{1};
-
-        boost::asio::ip::tcp::acceptor acceptor{ioc, {address, port}};
-        boost::asio::ip::tcp::socket socket{ioc};
-        http_server(acceptor, socket);
-
-        ioc.run();
+        Server server;
+        server.startServer(boost::asio::ip::make_address(argv[1]), static_cast<unsigned short>(std::atoi(argv[2])));
     }
     catch(std::exception const& e)
     {
