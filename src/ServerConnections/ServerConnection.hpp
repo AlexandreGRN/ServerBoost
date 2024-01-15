@@ -1,5 +1,6 @@
 #include "../libraries.hpp"
 #include "../MySQLConnectors/MySQLConnector.hpp"
+#include "../Converters/JSonConverter.hpp"
 template<typename ConnectionManager>
 class ServerConnection : public std::enable_shared_from_this<ServerConnection<ConnectionManager>>
 {
@@ -23,6 +24,7 @@ private:
     boost::beast::http::response<boost::beast::http::dynamic_body>    response_;
     boost::asio::steady_timer                                         deadline_ {socket_.get_executor(), std::chrono::seconds(60) };
     ConnectionManager                                                 connection_man;
+    JSonConverter                                                     converter;
 
     // Read request
     void read_request()
@@ -51,7 +53,7 @@ private:
             response_.set(boost::beast::http::field::server, "Beast");
             create_response();
         }
-        else                   // If not supported, return bad request
+        else                                                     // If not supported, return bad request
         {
             response_.result(boost::beast::http::status::bad_request);
             response_.set(boost::beast::http::field::content_type, "text/plain");
@@ -71,13 +73,16 @@ private:
         }
         else if (request_.target() == "/users")
         {
+            // MySQLConnector
             MySQLConnector connector;
             connector.connect();
-            auto a = connector.select_element("ID", "1");
+            std::vector<std::vector<std::string>> users = connector.select_all_user();
             connector.disconnect();
 
+            // Make response
+            std::string str = converter.ToJson(users);
             response_.set(boost::beast::http::field::content_type, "text/html");
-            boost::beast::ostream(response_.body()) <<  a[0] << " " << a[1] << " " << a[2];
+            boost::beast::ostream(response_.body()) << str;
         }
         else
         {

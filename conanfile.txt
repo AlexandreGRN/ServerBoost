@@ -1,4 +1,6 @@
 [requires]
 boost/1.83.0
+rapidjson/cci.20230929
+
 [generators]
 cmake
