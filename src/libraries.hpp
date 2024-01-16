@@ -4,6 +4,9 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
+#include <boost/json/src.hpp>
+#include <boost/json.hpp>
+#include <boost/json/serialize.hpp>
 
 // Standard
 #include <chrono>

@@ -1,6 +1,7 @@
 #include "../libraries.hpp"
 #include "../MySQLConnectors/MySQLConnector.hpp"
 #include "../Converters/JSonConverter.hpp"
+
 template<typename ConnectionManager>
 class ServerConnection : public std::enable_shared_from_this<ServerConnection<ConnectionManager>>
 {
@@ -47,7 +48,11 @@ private:
         response_.version(request_.version());
         response_.keep_alive(false);
 
-        if (request_.method() == boost::beast::http::verb::get) // If supported, return OK
+        if (request_.method() == boost::beast::http::verb::get || 
+           request_.method() == boost::beast::http::verb::post ||
+            request_.method() == boost::beast::http::verb::put ||
+            request_.method() == boost::beast::http::verb::delete_
+          ) // If supported, return OK
         {
             response_.result(boost::beast::http::status::ok);
             response_.set(boost::beast::http::field::server, "Beast");
@@ -66,21 +71,48 @@ private:
     // Construct a response message based on the route
     void create_response()
     {
-        if(request_.target() == "/status")
+        if(request_.target() == "/status" && request_.method() == boost::beast::http::verb::get)
         {
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) <<  "status: 200\n";
         }
-        else if (request_.target() == "/users")
+        if (request_.target() == "/users_rapidjson" && request_.method() == boost::beast::http::verb::get)
         {
             // MySQLConnector
             MySQLConnector connector;
-            connector.connect();
+            connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
             std::vector<std::vector<std::string>> users = connector.select_all_user();
             connector.disconnect();
 
             // Make response
             std::string str = converter.ToJson(users);
+            response_.set(boost::beast::http::field::content_type, "text/html");
+            boost::beast::ostream(response_.body()) << str;
+        }
+        if (request_.target() == "/users_boostjson" && request_.method() == boost::beast::http::verb::get)
+        {
+            // MySQLConnector
+            MySQLConnector connector;
+            connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
+            std::vector<std::vector<std::string>> users = connector.select_all_user();
+            connector.disconnect();
+
+            // Make response
+            boost::json::array jsonArray;
+            boost::json::object jsonObject;
+            
+            for (int i = 0; i < users.size(); i++)
+            {
+                boost::json::object jsonObject;
+                jsonObject["ID"]         = users[i][0];
+                jsonObject["first_name"] = users[i][1];
+                jsonObject["last_name"]  = users[i][2];
+                jsonArray.push_back(jsonObject);
+            }
+
+            boost::json::value jsonValue = jsonArray;
+            std::string str = serialize(jsonValue);
+            std::cout << str << std::endl;
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) << str;
         }

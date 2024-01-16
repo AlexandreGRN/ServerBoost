@@ -13,8 +13,6 @@ int main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        
-
         Server server;
         server.startServer(boost::asio::ip::make_address(argv[1]), static_cast<unsigned short>(std::atoi(argv[2])));
     }

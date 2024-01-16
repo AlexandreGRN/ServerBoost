@@ -6,11 +6,11 @@ public:
     MySQLConnector() = default;
     ~MySQLConnector() = default;
 
-    void connect()
+    void connect(std::string ip, std::string user, std::string password, std::string database)
     {
         driver = get_driver_instance();
-        con = driver->connect("tcp://127.0.0.1:3306", "user", "1234");
-        con->setSchema("DB1");
+        con = driver->connect("tcp://" + ip, user, password);
+        con->setSchema(database);
     }
 
     void disconnect()
@@ -22,7 +22,7 @@ public:
     {
         std::vector<std::vector<std::string>> table;
         
-        pstmt = con->prepareStatement("SELECT * FROM user");
+        pstmt = con->prepareStatement("SELECT * FROM user WHERE (ID = 1)");
         res = pstmt->executeQuery();
         res->beforeFirst();
         while (res->next())

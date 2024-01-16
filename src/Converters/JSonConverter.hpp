@@ -15,10 +15,10 @@ public:
         rapidjson::Value object(rapidjson::kObjectType);
 
         // JSON data insertion
-        object.AddMember("User", rapidjson::Value(Row[0].c_str(), Row[0].size()), document.GetAllocator());
-        object.AddMember("first_name", rapidjson::Value(Row[1].c_str(), Row[1].size()), document.GetAllocator());
-        object.AddMember("last_name", rapidjson::Value(Row[2].c_str(), Row[2].size()), document.GetAllocator());
-        document.AddMember("User", object, document.GetAllocator());
+        object.AddMember("ID",         rapidjson::Value(Row[0].c_str(), Row[0].size()), allocator);
+        object.AddMember("first_name", rapidjson::Value(Row[1].c_str(), Row[1].size()), allocator);
+        object.AddMember("last_name",  rapidjson::Value(Row[2].c_str(), Row[2].size()), allocator);
+        document.AddMember("User", object, allocator);
 
         // JSON to string
         rapidjson::StringBuffer strbuf;
@@ -39,12 +39,12 @@ public:
         for (int i = 0; i < Table.size(); i++)
         {
             rapidjson::Value object(rapidjson::kObjectType);
-            object.AddMember("ID", rapidjson::Value(Table[i][0].c_str(), Table[i][0].size(), allocator), document.GetAllocator());
-            object.AddMember("first_name", rapidjson::Value(Table[i][1].c_str(), Table[i][1].size(), allocator), document.GetAllocator());
-            object.AddMember("last_name", rapidjson::Value(Table[i][2].c_str(), Table[i][2].size(), allocator), document.GetAllocator());
-            array.PushBack(object, document.GetAllocator());
+            object.AddMember("ID",         rapidjson::Value(Table[i][0].c_str(), Table[i][0].size(), allocator), allocator);
+            object.AddMember("first_name", rapidjson::Value(Table[i][1].c_str(), Table[i][1].size(), allocator), allocator);
+            object.AddMember("last_name",  rapidjson::Value(Table[i][2].c_str(), Table[i][2].size(), allocator), allocator);
+            array.PushBack(object, allocator);
         }
-        document.AddMember("Users", array, document.GetAllocator());
+        document.AddMember("Users", array, allocator);
 
         // JSON to string
         rapidjson::StringBuffer strbuf;
