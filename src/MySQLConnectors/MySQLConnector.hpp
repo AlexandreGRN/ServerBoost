@@ -22,7 +22,7 @@ public:
     {
         std::vector<std::vector<std::string>> table;
         
-        pstmt = con->prepareStatement("SELECT * FROM user WHERE (ID = 1)");
+        pstmt = con->prepareStatement("SELECT * FROM user WHERE (ID = 1 AND (ID > 0 AND ID < 10) AND (ID < 20))");
         res = pstmt->executeQuery();
         res->beforeFirst();
         while (res->next())
