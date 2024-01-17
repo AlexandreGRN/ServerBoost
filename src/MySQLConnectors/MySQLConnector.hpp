@@ -1,4 +1,5 @@
 #include "../libraries.hpp"
+#include "../MySQL_orm/mysql_orm_libraries.hpp"
 
 class MySQLConnector
 {
@@ -22,7 +23,9 @@ public:
     {
         std::vector<std::vector<std::string>> table;
         
-        pstmt = con->prepareStatement("SELECT * FROM user WHERE (ID = 1 AND (ID > 0 AND ID < 10) AND (ID < 20))");
+        Select_ selection("user", Filter_(EqualTo("ID", "2")), ANDFilter_(StartWith("first_name", "prenom")), ORFilter_(EndWith("last_name", "nom2")));
+        std::cout << selection.retrieveSelectString() << std::endl;
+        pstmt = con->prepareStatement(selection.retrieveSelectString());
         res = pstmt->executeQuery();
         res->beforeFirst();
         while (res->next())
@@ -43,7 +46,9 @@ public:
     {
         std::vector<std::string> row;
 
-        pstmt = con->prepareStatement("SELECT * FROM user WHERE ID = 1");
+        Select_ selection("user", Filter_(EqualTo("ID", "1")));
+
+        pstmt = con->prepareStatement(selection.retrieveSelectString());
         res = pstmt->executeQuery();
 
         if (res->next()) {

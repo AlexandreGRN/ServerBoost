@@ -229,6 +229,38 @@ public:
     std::string conditionString = "";
 };
 
+class NotStartWith : public Condition
+{
+public:
+    NotStartWith(std::string column, std::string value)
+    {
+        conditionString = column + " NOT LIKE '" + value + "%'";
+    }
+    ~NotStartWith() = default;
+
+    std::string retrieveConditionString()
+    {
+        return conditionString;
+    }
+    std::string conditionString = "";
+};
+
+class NotEndWith : public Condition
+{
+public:
+    NotEndWith(std::string column, std::string value)
+    {
+        conditionString = column + " NOT LIKE '%" + value + "'";
+    }
+    ~NotEndWith() = default;
+
+    std::string retrieveConditionString()
+    {
+        return conditionString;
+    }
+    std::string conditionString = "";
+};
+
 class Contain : public Condition
 {
 public:
@@ -261,7 +293,6 @@ public:
     std::string conditionString = "";
 };
 
-
 int main(int argc, char* argv[])
 {
     /*
@@ -269,9 +300,9 @@ int main(int argc, char* argv[])
     Filter_ b(std::string("y < 0"));
     Filter_ c(std::string("z < 0"));
 
-    Filter_ d(std::string("x < 0"));
-    Filter_ e(std::string("y < 0"));
-    Filter_ f(std::string("z < 0"));
+    Filter_ d(std::string("x < 1"));
+    Filter_ e(std::string("y < 1"));
+    Filter_ f(std::string("z < 1"));
 
     Filter_ g(a, b, c);
     Filter_ h(d, e, f);

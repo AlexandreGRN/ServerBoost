@@ -18,6 +18,7 @@
 #include <thread>
 #include <set>
 #include <stdlib.h>
+#include <cstdarg>
 
 // MySQL
 #include <cppconn/driver.h>
