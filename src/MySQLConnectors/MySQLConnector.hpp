@@ -23,7 +23,7 @@ public:
     {
         std::vector<std::vector<std::string>> table;
         
-        Select_ selection("user", Filter_(EqualTo("ID", "2")), ANDFilter_(StartWith("first_name", "prenom")), ORFilter_(EndWith("last_name", "nom2")));
+        Select_ selection("user", Filter_(EqualTo("ID", "6")), ANDFilter_(StartWith("first_name", "prenom")), ORFilter_(EndWith("last_name", "nom0")));
         std::cout << selection.retrieveSelectString() << std::endl;
         pstmt = con->prepareStatement(selection.retrieveSelectString());
         res = pstmt->executeQuery();
