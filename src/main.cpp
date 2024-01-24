@@ -83,7 +83,6 @@ public:
     Filter_(Args... args)
     {
         // Make minor filter
-        filterString += "(";
         if (sizeof...(args) == 1)
         {
             processArgs(args...);
@@ -102,7 +101,7 @@ public:
     */
     inline std::string retrieveConditionString()
     {
-        return filterString;
+        return  "(" + filterString + ")";
     }
 
     /**
@@ -126,7 +125,12 @@ public:
         else
             filterString += arg->retrieveOperator();
         filterString += arg->retrieveConditionString();
-        filterString += ")";
+    }
+
+    void setOperator(std::string op)
+    {
+        if (op == " AND " || op == " OR ")
+            operator_ = op;
     }
 
 private:
@@ -421,11 +425,14 @@ public:
                         filter_to_add->add_new_condition(conditionConverter(split(std::move(filter), ",")));
                     if (filter_vector[1] == " 'filter'")
                         filter_to_add = makeFilterString(filter);
+                    if (filter_vector[0] == "'OR'")
+                        filter_to_add->setOperator(" OR ");
+                    if (filter_vector[0] == "'AND'")
+                        filter_to_add->setOperator(" AND ");
                     mfilter->add_new_condition(std::move(filter_to_add));
                 }
             }
         }
-        std::cout << mfilter->retrieveConditionString() << std::endl;
         return mfilter;
     }
 
@@ -434,11 +441,9 @@ public:
     */
     JsonToSQLCOnverter(std::string action, std::string table, std::string requestFilter)
     {
-        makeFilterString(requestFilter);
-
         if (action == "SELECT"){
-            Select_ a(table, Filter_(EqualTo("ID", "1")));
-            requestString = a.retrieveSelectString();
+            Select_ select(table, *makeFilterString(requestFilter));
+            requestString = select.retrieveSelectString();
         }
     }
     ~JsonToSQLCOnverter() = default;
@@ -493,12 +498,8 @@ int main(int argc, char* argv[])
     /* Select_ a("user", Filter_(EqualTo("ID", "1"), Filter_(StartWith("first_name", "x")), Filter_(StartWith("last_name", "y"))));
     std::cout << a.retrieveSelectString() << std::endl; */
 
+    std::string requestFilter = "['', 'condition', 'ID', '1', 'EqualTo'], ['OR', 'condition', 'ID', '0', 'GreaterThan'], ['OR', 'filter', ['', 'condition', 'ID', '1', 'EqualTo'], ['AND', 'condition', 'ID', '0', 'GreaterThan']]";
 
-    std::string requestFilter = "['', 'condition', 'ID', '1', 'EqualTo'], ['AND', 'condition', 'ID', '0', 'GreaterThan']";
-    std::string requestFilter2 = "['', 'condition', 'ID', '1', 'EqualTo'], ['AND', 'condition', 'ID', '0', 'GreaterThan'], ['OR', 'filter', ['', 'condition', 'ID', '1', 'EqualTo'], ['AND', 'condition', 'ID', '0', 'GreaterThan']]";
-
-
-    JsonToSQLCOnverter a("SELECT", "user", requestFilter2);
-
-    //std::cout << a.retrieveRequestString() << std::endl;    
+    JsonToSQLCOnverter a("SELECT", "user", requestFilter);
+    std::cout << a.retrieveRequestString() << std::endl;    
 }
