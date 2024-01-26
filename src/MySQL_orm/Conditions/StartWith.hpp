@@ -10,7 +10,7 @@ public:
     }
     ~StartWith() = default;
 
-    std::string retrieveConditionString()
+    std::string retrieveConditionString() override
     {
         return conditionString;
     }

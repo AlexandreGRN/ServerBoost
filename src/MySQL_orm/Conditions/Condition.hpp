@@ -9,10 +9,6 @@ public:
     Condition() = default;
     ~Condition() = default;
 
-    virtual std::string retrieveConditionString() = 0;
-    std::string retrieveOperator()
-    {
-        return "";
-    }
+    virtual std::string retrieveConditionString(){return "";}
+    std::string retrieveOperator(){return "";}
 };
-

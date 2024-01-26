@@ -12,3 +12,5 @@
 #include "Conditions/EndWith.hpp"
 #include "Conditions/Contain.hpp"
 #include "Conditions/NotContain.hpp"
+#include "Conditions/NotStartWith.hpp"
+#include "Conditions/NotEndWith.hpp"

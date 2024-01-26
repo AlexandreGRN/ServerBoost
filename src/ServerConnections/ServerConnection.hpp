@@ -1,6 +1,6 @@
 #include "../libraries.hpp"
 #include "../MySQLConnectors/MySQLConnector.hpp"
-#include "../Converters/JSonConverter.hpp"
+#include "../Converters/JsonConverter/JSonConverter.hpp"
 
 template<typename ConnectionManager>
 class ServerConnection : public std::enable_shared_from_this<ServerConnection<ConnectionManager>>

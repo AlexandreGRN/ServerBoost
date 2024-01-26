@@ -1,5 +1,6 @@
 #include "../libraries.hpp"
 #include "../MySQL_orm/mysql_orm_libraries.hpp"
+#include "../Converters/JsonToSQLCOnverterString/JsonToSQLCOnverter.hpp"
 
 class MySQLConnector
 {
@@ -23,9 +24,9 @@ public:
     {
         std::vector<std::vector<std::string>> table;
         
-        Select_ selection("user", Filter_(EqualTo("ID", "6")), ANDFilter_(StartWith("first_name", "prenom")), ORFilter_(EndWith("last_name", "nom0")));
-        std::cout << selection.retrieveSelectString() << std::endl;
-        pstmt = con->prepareStatement(selection.retrieveSelectString());
+        std::string filterString = "['', 'condition', 'ID', '0', 'EqualTo'], ['OR', 'condition', 'first_name', 'prenom', 'StartWith'], ['OR', 'condition', 'ID', '1', 'EqualTo']";
+        JsonToSQLCOnverter converter("SELECT", "user", filterString);
+        pstmt = con->prepareStatement(converter.retrieveRequestString());
         res = pstmt->executeQuery();
         res->beforeFirst();
         while (res->next())
