@@ -20,7 +20,7 @@ public:
         delete con;
     }
 
-    std::vector<std::vector<std::string>> select_all_user()
+    std::vector<std::vector<std::string>> select_all_user(const std::string& filtre)
     {
         std::vector<std::vector<std::string>> table;
         
