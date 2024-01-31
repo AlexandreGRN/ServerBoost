@@ -4,26 +4,91 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <chrono>
 
-template <typename... Args>
+class BaseTable
+{
+public:
+    virtual std::string getTable() const {return "";}
+};
+
+template <typename CRTP>
+class Table : public BaseTable
+{
+public:
+    std::string getTable()
+    {
+        return static_cast<CRTP*>(this)->getTable();
+    }
+};
+
+class UserTable : public Table<UserTable>
+{
+public:
+    std::string getTable() const
+    {
+        return "user";
+    }
+};
+
+class BaseColumn
+{
+public:
+    virtual std::string getColumn() const {return "";}
+};
+
+template <typename CRTP>
+class Column
+{
+    std::string getColumn() const
+    {
+        return static_cast<CRTP*>(this)->getColumn();
+    }
+};
+
+class IdColumn : Column<IdColumn>
+{
+    std::string getColumn() const
+    {
+        return "ID";
+    }
+};
+
+class FirstNameColumn : Column<FirstNameColumn>
+{
+    std::string getColumn() const
+    {
+        return "first_name";
+    }
+};
+
+class LastNameColumn : Column<LastNameColumn>
+{
+    std::string getColumn() const
+    {
+        return "last_name";
+    }
+};
+
 class Select_ {
 public:
 
-    Select_(std::string table, Args... args)
+    template <typename... Args>
+    void addFilter(const BaseTable& table, Args... args)
     {
-        SelectString = "SELECT * from " + table + " WHERE ";
+        static_assert(sizeof...(args) > 0, "You must provide at least one argument");
+        SelectString = "SELECT * from " + table.getTable() + " WHERE ";
         processArgs(args...);
     }
-    ~Select_() = default;
 
-    std::string retrieveSelectString()
+    std::string retrieveSelectString() const
     {
         return SelectString;
     }
 
 private:
     template <typename T>
-    void makeFilterBody(T arg)
+    void makeFilterBody(T& arg)
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -33,31 +98,41 @@ private:
     }
 
     // Create the vector of argument strings
+    template <typename... Args>
     void processArgs(Args... args) {processSingleArg(args...);}
     template <typename T>
-    void processSingleArg(T arg) {
+    void processSingleArg(T& arg) {
         makeFilterBody(arg);
     }
 
     template <typename T, typename... Rest>
-    void processSingleArg(T arg, Rest... rest) {
+    void processSingleArg(T& arg, Rest... rest) {
         makeFilterBody(arg);
         processSingleArg(rest...);
     }
 
     std::string result = "";
     std::string SelectString = "";
-    bool isFirstCondition = true;
+    int         nbArgs = 0;
+    bool        isFirstCondition = true;
 };
 
-class Condition
+class BaseCondition
 {
 public:
-    Condition() = default;
-    ~Condition() = default;
+    virtual std::string retrieveConditionString() {return "";}
+    virtual std::string retrieveOperator() {return "";};
+};
 
-    virtual std::string retrieveConditionString(){return "";}
-    std::string retrieveOperator(){return "";}
+template <typename CRTP>
+class Condition : public BaseCondition
+{
+public:
+    std::string retrieveConditionString() 
+    {
+        return static_cast<CRTP*>(this)->retrieveConditionString();
+    }
+    std::string retrieveOperator() {return "";}
 };
 
 template <typename... Args>
@@ -114,7 +189,7 @@ public:
         filterString += arg->retrieveConditionString();
     }
 
-    void setOperator(std::string op)
+    void setOperator(const std::string& op)
     {
         if (op == " AND " || op == " OR ")
             operator_ = op;
@@ -126,7 +201,7 @@ private:
      * Make the filter with the arguments (as string)
      * In: A condition string
      */
-    inline void makeGroupConditionString(std::string arg)
+    inline void makeGroupConditionString(const std::string& arg)
     {
         filterString += arg;
     }
@@ -136,7 +211,7 @@ private:
      * In: A condition or a filter object
      */ 
     template<typename T>
-    void makeGroupConditionString(T arg)
+    void makeGroupConditionString(T& arg)
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -152,12 +227,12 @@ private:
     void processArgs(Args... args) {processSingleArg(args...);}
     void processSingleArg(){filterString += ")";}
     template <typename T>
-    void processSingleArg(const T arg) {
+    void processSingleArg(const T& arg) {
         makeGroupConditionString(arg);
         filterString += ")";
     }
     template <typename T, typename... Rest>
-    void processSingleArg(const T arg, Rest... rest) {
+    void processSingleArg(const T& arg, Rest... rest) {
         makeGroupConditionString(arg);
         processSingleArg(rest...);
     }
@@ -169,7 +244,7 @@ private:
 };
 
 
-class LesserThan : public Condition
+class LesserThan : public Condition<LesserThan>
 {
 public:
     LesserThan(std::string column, std::string value)
@@ -178,14 +253,16 @@ public:
     }
     ~LesserThan() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class GreaterThan : public Condition
+class GreaterThan : public Condition<GreaterThan>
 {
 public:
     GreaterThan(std::string column, std::string value)
@@ -194,14 +271,16 @@ public:
     }
     ~GreaterThan() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class EqualTo : public Condition
+class EqualTo : public Condition<EqualTo>
 {
 public:
     EqualTo(std::string column, std::string value)
@@ -210,14 +289,16 @@ public:
     }
     ~EqualTo() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class NotEqualTo : public Condition
+class NotEqualTo : public Condition<NotEqualTo>
 {
 public:
     NotEqualTo(std::string column, std::string value)
@@ -226,14 +307,16 @@ public:
     }
     ~NotEqualTo() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class StartWith : public Condition
+class StartWith : public Condition<StartWith>
 {
 public:
     StartWith(std::string column, std::string value)
@@ -242,14 +325,16 @@ public:
     }
     ~StartWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class EndWith : public Condition
+class EndWith : public Condition<EndWith>
 {
 public:
     EndWith(std::string column, std::string value)
@@ -258,14 +343,16 @@ public:
     }
     ~EndWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class NotStartWith : public Condition
+class NotStartWith : public Condition<NotStartWith>
 {
 public:
     NotStartWith(std::string column, std::string value)
@@ -274,14 +361,16 @@ public:
     }
     ~NotStartWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class NotEndWith : public Condition
+class NotEndWith : public Condition<NotEndWith>
 {
 public:
     NotEndWith(std::string column, std::string value)
@@ -290,14 +379,16 @@ public:
     }
     ~NotEndWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class Contain : public Condition
+class Contain : public Condition<Contain>
 {
 public:
     Contain(std::string column, std::string value)
@@ -306,14 +397,16 @@ public:
     }
     ~Contain() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
-class NotContain : public Condition
+class NotContain : public Condition<NotContain>
 {
 public:
     NotContain(std::string column, std::string value)
@@ -322,10 +415,12 @@ public:
     }
     ~NotContain() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString()
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
@@ -336,7 +431,22 @@ public:
 class JsonToSQLCOnverter
 {
 public:
+    /**
+     * Constructor: Convert a JSON request to a SQL request
+    */
+    JsonToSQLCOnverter(Select_&& action, BaseTable&& table, const std::string& requestFilter)
+    {
+        action.addFilter(table, *makeFilterString(0, requestFilter));
+        requestString = action.retrieveSelectString();
+    }
+    ~JsonToSQLCOnverter() = default;
 
+    std::string retrieveRequestString()
+    {
+        return requestString;
+    }
+
+private:
 
     /**
      * Split a string with a delimiter
@@ -361,8 +471,8 @@ public:
      * In: A string from the JSON request (as vector)
      * Out: A condition object
     */
-    std::unique_ptr<Condition> conditionConverter(std::vector<std::string> conditionVector){
-        static const std::map<std::string, std::unique_ptr<Condition>(*)(const std::string&, const std::string&)> conditionMap = {
+    std::unique_ptr<BaseCondition> conditionConverter(const std::vector<std::string>& conditionVector){
+        static const std::map<std::string, std::unique_ptr<BaseCondition>(*)(const std::string&, const std::string&)> conditionMap = {
             {"Contain", &makeCondition<Contain>},
             {"NotContain", &makeCondition<NotContain>},
             {"StartWith", &makeCondition<StartWith>},
@@ -380,7 +490,7 @@ public:
         if (it != conditionMap.end())
             return it->second(conditionVector[2].substr(1, conditionVector[2].size() - 1), conditionVector[3].substr(1, conditionVector[3].size() - 1));
         else
-            return std::make_unique<Condition>();
+            return std::make_unique<BaseCondition>();
     }
 
     /**
@@ -389,7 +499,7 @@ public:
      * Out: A condition object
     */
     template <typename ConditionType>
-    static std::unique_ptr<Condition> makeCondition(const std::string& arg1, const std::string& arg2) {
+    static std::unique_ptr<BaseCondition> makeCondition(const std::string& arg1, const std::string& arg2) {
         return std::make_unique<ConditionType>(arg1, arg2);
     }
  
@@ -399,15 +509,14 @@ public:
      * In: A string from the JSON request
      * Out: The filter object
     */
-    std::unique_ptr<Filter_<>> makeFilterString(std::string requestFilter)
+    std::unique_ptr<Filter_<>> makeFilterString(int starting_index, const std::string& requestFilter)
     {
-        //Filter_ new_filter;
         bool inFilter = false;
         int inFilterCount = 0;
         int start = 0;
         std::unique_ptr<Filter_<>> mfilter = std::make_unique<Filter_<>>();
         std::string filter;
-        for (int i = 0; i < requestFilter.size(); i++)
+        for (int i = starting_index; i < requestFilter.size(); i++)
         {
             if (requestFilter[i] == '[')
             {
@@ -431,7 +540,7 @@ public:
                     if (filter_vector[1] == " 'condition'")
                         filter_to_add->add_new_condition(conditionConverter(split(std::move(filter), ",")));
                     if (filter_vector[1] == " 'filter'")
-                        filter_to_add = makeFilterString(filter);
+                        filter_to_add = makeFilterString(start + 1, requestFilter);
                     if (filter_vector[0] == "'OR'")
                         filter_to_add->setOperator(" OR ");
                     if (filter_vector[0] == "'AND'")
@@ -443,27 +552,7 @@ public:
         return mfilter;
     }
 
-    /**
-     * Constructor: Convert a JSON request to a SQL request
-    */
-    JsonToSQLCOnverter(std::string action, std::string table, std::string requestFilter)
-    {
-        if (action == "SELECT"){
-            Select_ select(table, *makeFilterString(requestFilter));
-            requestString = select.retrieveSelectString();
-        }
-    }
-    ~JsonToSQLCOnverter() = default;
-
-    std::string retrieveRequestString()
-    {
-        return requestString;
-    }
-
-
-private:
     std::string requestString = "";
-    std::string filterString = "";
 };
 
 
@@ -486,9 +575,9 @@ int main(int argc, char* argv[])
     Select_ j("user" , i, d);
 
     std::cout << j.retrieveSelectString() << std::endl;
-
+    */
     
-    
+    /*
     EqualTo a = EqualTo("ID", "1");
     Filter_ c = Filter_(a);
 
@@ -504,10 +593,9 @@ int main(int argc, char* argv[])
 
     /*Select_ a("user", Filter_(EqualTo("ID", "1"), Filter_(StartWith("first_name", "x")), Filter_(StartWith("last_name", "y"))));
     std::cout << a.retrieveSelectString() << std::endl;*/
-
     
     std::string requestFilter = "['', 'condition', 'ID', '1', 'EqualTo'], ['OR', 'condition', 'ID', '0', 'GreaterThan'], ['OR', 'filter', ['', 'condition', 'ID', '1', 'EqualTo'], ['AND', 'condition', 'ID', '0', 'GreaterThan']]";
 
-    JsonToSQLCOnverter a("SELECT", "user", requestFilter);
+    JsonToSQLCOnverter a(Select_{}, UserTable{}, requestFilter);
     std::cout << a.retrieveRequestString() << std::endl;
 }
