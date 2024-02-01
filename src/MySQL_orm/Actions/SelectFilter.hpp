@@ -25,7 +25,7 @@ public:
     */
     SelectFilter(Select_&& action, BaseTable&& table, const std::string& requestFilter)
     {
-        action.addFilter(table, *makeFilterString(0, requestFilter));
+        action.addFilter(table, *makeFilterString(0, requestFilter, requestFilter.size() - 1));
         requestString = action.retrieveSelectString();
     }
     ~SelectFilter() = default;
@@ -79,7 +79,9 @@ private:
             {"id", &makeColumn<IdColumn>},
             {"first_name", &makeColumn<FirstNameColumn>},
             {"last_name", &makeColumn<LastNameColumn>},
-            {"age", &makeColumn<AgeColumn>}
+            {"age", &makeColumn<AgeColumn>},
+            {"genre", &makeColumn<GenreColumn>},
+            {"building", &makeColumn<BuildingColumn>}
         };
         auto it = conditionMap.find(conditionVector[4].substr(2, conditionVector[4].size() - 3));
         auto col = columnMap.find(conditionVector[2].substr(2, conditionVector[2].size() - 3));
@@ -116,14 +118,14 @@ private:
      * In: A string from the JSON request
      * Out: The filter object
     */
-    std::unique_ptr<Filter_<>> makeFilterString(int starting_index, const std::string& requestFilter)
+    std::unique_ptr<Filter_<>> makeFilterString(int starting_index, const std::string& requestFilter, int ending_index)
     {
         bool inFilter = false;
         int inFilterCount = 0;
         int start = 0;
         std::unique_ptr<Filter_<>> mfilter = std::make_unique<Filter_<>>();
         std::string filter;
-        for (int i = starting_index; i < requestFilter.size(); i++)
+        for (int i = starting_index; i <= ending_index; i++)
         {
             if (requestFilter[i] == '[')
             {
@@ -147,7 +149,7 @@ private:
                     if (filter_vector[1] == " 'condition'")
                         filter_to_add->add_new_condition(conditionConverter(split(std::move(filter), ",")));
                     if (filter_vector[1] == " 'filter'")
-                        filter_to_add = makeFilterString(start + 1, requestFilter);
+                        filter_to_add = makeFilterString(start + 1, requestFilter, i - 1);
                     if (filter_vector[0] == "'OR'")
                         filter_to_add->setOperator(" OR ");
                     if (filter_vector[0] == "'AND'")

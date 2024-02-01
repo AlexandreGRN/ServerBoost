@@ -9,7 +9,7 @@ class LesserThan : public Condition<LesserThan>
 public:
     LesserThan(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column->getColumn() + " < '" + value + "'";
+        conditionString = column->getColumn() + " < " + value;
     }
     ~LesserThan() = default;
 

@@ -9,7 +9,7 @@ class EqualTo : public Condition<EqualTo>
 public:
     EqualTo(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column->getColumn() + " = '" + value + "'";
+        conditionString = column->getColumn() + " = " + value;
     }
     ~EqualTo() = default;
 
