@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef STARTWITH_HPP
+#define STARTWITH_HPP
 
-class StartWith : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class StartWith : public Condition<StartWith>
 {
 public:
-    StartWith(std::string column, std::string value)
+    StartWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " LIKE '" + value + "%'";
+        conditionString = column->getColumn() + " LIKE '" + value + "%'";
     }
     ~StartWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

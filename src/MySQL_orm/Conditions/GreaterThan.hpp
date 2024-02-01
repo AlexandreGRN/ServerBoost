@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef GREATER_THAN_HPP
+#define GREATER_THAN_HPP
 
-class GreaterThan : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class GreaterThan : public Condition<GreaterThan>
 {
 public:
-    GreaterThan(std::string column, std::string value)
+    GreaterThan(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " > " + value;
+        conditionString = column->getColumn() + " > " + value;
     }
     ~GreaterThan() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

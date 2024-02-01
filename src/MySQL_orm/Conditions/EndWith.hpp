@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef END_WITH_HPP
+#define END_WITH_HPP
 
-class EndWith : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class EndWith : public Condition<EndWith>
 {
 public:
-    EndWith(std::string column, std::string value)
+    EndWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " LIKE '%" + value + "'";
+        conditionString = column->getColumn() + " LIKE '%" + value + "'";
     }
     ~EndWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

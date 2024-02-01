@@ -18,6 +18,7 @@ public:
         object.AddMember("ID",         rapidjson::Value(Row[0].c_str(), Row[0].size()), allocator);
         object.AddMember("first_name", rapidjson::Value(Row[1].c_str(), Row[1].size()), allocator);
         object.AddMember("last_name",  rapidjson::Value(Row[2].c_str(), Row[2].size()), allocator);
+        object.AddMember("age",        rapidjson::Value(Row[3].c_str(), Row[3].size()), allocator);
         document.AddMember("User", object, allocator);
 
         // JSON to string
@@ -42,6 +43,7 @@ public:
             object.AddMember("ID",         rapidjson::Value(Table[i][0].c_str(), Table[i][0].size(), allocator), allocator);
             object.AddMember("first_name", rapidjson::Value(Table[i][1].c_str(), Table[i][1].size(), allocator), allocator);
             object.AddMember("last_name",  rapidjson::Value(Table[i][2].c_str(), Table[i][2].size(), allocator), allocator);
+            object.AddMember("age",        rapidjson::Value(Table[i][3].c_str(), Table[i][3].size(), allocator), allocator);
             array.PushBack(object, allocator);
         }
         document.AddMember("Users", array, allocator);

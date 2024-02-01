@@ -1,19 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef NOT_CONTAIN_HPP
+#define NOT_CONTAIN_HPP
 
-class NotContain : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class NotContain : public Condition<NotContain>
 {
 public:
-    NotContain(std::string column, std::string value)
+    NotContain(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " NOT LIKE '%" + value + "%'";
+        conditionString = column->getColumn() + " NOT LIKE '%" + value + "%'";
     }
     ~NotContain() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
 
+#endif

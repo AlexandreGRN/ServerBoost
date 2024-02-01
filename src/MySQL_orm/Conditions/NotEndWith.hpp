@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef NOT_END_WITH_HPP
+#define NOT_END_WITH_HPP
 
-class NotEndWith : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class NotEndWith : public Condition<NotEndWith>
 {
 public:
-    NotEndWith(std::string column, std::string value)
+    NotEndWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " NOT LIKE '%" + value + "'";
+        conditionString = column->getColumn() + " NOT LIKE '%" + value + "'";
     }
     ~NotEndWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef NOT_EQUAL_TO_HPP
+#define NOT_EQUAL_TO_HPP
 
-class NotEqualTo : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class NotEqualTo : public Condition<NotEqualTo>
 {
 public:
-    NotEqualTo(std::string column, std::string value)
+    NotEqualTo(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " != " + value;
+        conditionString = column->getColumn() + " != " + value;
     }
     ~NotEqualTo() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef LESSERTHAN_HPP
+#define LESSERTHAN_HPP
 
-class LesserThan : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class LesserThan : public Condition<LesserThan>
 {
 public:
-    LesserThan(std::string column, std::string value)
+    LesserThan(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " < " + value;
+        conditionString = column->getColumn() + " < '" + value + "'";
     }
     ~LesserThan() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

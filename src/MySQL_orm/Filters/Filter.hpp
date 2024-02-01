@@ -1,13 +1,15 @@
+#ifndef FILTER_HPP
+#define FILTER_HPP
 #include "../../libraries.hpp"
 
 template <typename... Args>
-class Filter_
+class Filter_ final
 {
 public:
     /**
      * Multiple conditions or filters constructor (variadic)
      */
-    Filter_(Args... args)
+    explicit Filter_(Args... args)
     {
         // Make minor filter
         if (sizeof...(args) == 1)
@@ -54,7 +56,7 @@ public:
         filterString += arg->retrieveConditionString();
     }
 
-    void setOperator(std::string op)
+    void setOperator(const std::string& op)
     {
         if (op == " AND " || op == " OR ")
             operator_ = op;
@@ -66,7 +68,7 @@ private:
      * Make the filter with the arguments (as string)
      * In: A condition string
      */
-    inline void makeGroupConditionString(std::string arg)
+    inline void makeGroupConditionString(const std::string& arg)
     {
         filterString += arg;
     }
@@ -76,7 +78,7 @@ private:
      * In: A condition or a filter object
      */ 
     template<typename T>
-    void makeGroupConditionString(T arg)
+    void makeGroupConditionString(T& arg)
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -92,12 +94,12 @@ private:
     void processArgs(Args... args) {processSingleArg(args...);}
     void processSingleArg(){filterString += ")";}
     template <typename T>
-    void processSingleArg(const T arg) {
+    void processSingleArg(const T& arg) {
         makeGroupConditionString(arg);
         filterString += ")";
     }
     template <typename T, typename... Rest>
-    void processSingleArg(const T arg, Rest... rest) {
+    void processSingleArg(const T& arg, Rest... rest) {
         makeGroupConditionString(arg);
         processSingleArg(rest...);
     }
@@ -107,3 +109,5 @@ private:
     std::string filterString = "";
     bool isFirstCondition = true;
 };
+
+#endif

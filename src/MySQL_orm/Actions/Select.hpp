@@ -1,24 +1,27 @@
+#ifndef SELECT_HPP
+#define SELECT_HPP
 #include "../../libraries.hpp"
+#include "../Tables/BaseTable.hpp"
 
-template <typename... Args>
 class Select_ {
 public:
 
-    Select_(std::string table, Args... args)
+    template <typename... Args>
+    void addFilter(const BaseTable& table, Args... args)
     {
-        SelectString = "SELECT * from " + table + " WHERE ";
+        static_assert(sizeof...(args) > 0, "You must provide at least one argument");
+        SelectString = "SELECT * from " + table.getTable() + " WHERE ";
         processArgs(args...);
     }
-    ~Select_() = default;
 
-    std::string retrieveSelectString()
+    std::string retrieveSelectString() const
     {
         return SelectString;
     }
 
 private:
     template <typename T>
-    void makeFilterBody(T arg)
+    void makeFilterBody(T& arg)
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -28,19 +31,23 @@ private:
     }
 
     // Create the vector of argument strings
+    template <typename... Args>
     void processArgs(Args... args) {processSingleArg(args...);}
     template <typename T>
-    void processSingleArg(T arg) {
+    void processSingleArg(T& arg) {
         makeFilterBody(arg);
     }
 
     template <typename T, typename... Rest>
-    void processSingleArg(T arg, Rest... rest) {
+    void processSingleArg(T& arg, Rest... rest) {
         makeFilterBody(arg);
         processSingleArg(rest...);
     }
 
     std::string result = "";
     std::string SelectString = "";
-    bool isFirstCondition = true;
+    int         nbArgs = 0;
+    bool        isFirstCondition = true;
 };
+
+#endif

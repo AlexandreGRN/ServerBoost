@@ -1,10 +1,41 @@
-#include "../../libraries.hpp"
+#ifndef SELECT_FILTER_HPP
+#define SELECT_FILTER_HPP
 
-/* FilterString converter TO SQL Request string */
-class JsonToSQLCOnverter
+#include "../../libraries.hpp"
+#include "../Conditions/BaseCondition.hpp"
+#include "../Filters/Filter.hpp"
+#include "../Conditions/EqualTo.hpp"
+#include "../Conditions/GreaterThan.hpp"
+#include "../Conditions/LesserThan.hpp"
+#include "../Conditions/NotEqualTo.hpp"
+#include "../Conditions/StartWith.hpp"
+#include "../Conditions/EndWith.hpp"
+#include "../Conditions/Contain.hpp"
+#include "../Conditions/NotContain.hpp"
+#include "../Conditions/NotStartWith.hpp"
+#include "../Conditions/NotEndWith.hpp"
+
+#include "../Columns/user_libraries.hpp"
+
+class SelectFilter
 {
 public:
+    /**
+     * Constructor: Convert a JSON request to a SQL request
+    */
+    SelectFilter(Select_&& action, BaseTable&& table, const std::string& requestFilter)
+    {
+        action.addFilter(table, *makeFilterString(0, requestFilter));
+        requestString = action.retrieveSelectString();
+    }
+    ~SelectFilter() = default;
 
+    std::string retrieveRequestString()
+    {
+        return requestString;
+    }
+
+private:
 
     /**
      * Split a string with a delimiter
@@ -29,8 +60,8 @@ public:
      * In: A string from the JSON request (as vector)
      * Out: A condition object
     */
-    std::unique_ptr<Condition> conditionConverter(std::vector<std::string> conditionVector){
-        static const std::map<std::string, std::unique_ptr<Condition>(*)(const std::string&, const std::string&)> conditionMap = {
+    std::unique_ptr<BaseCondition> conditionConverter(const std::vector<std::string>& conditionVector){
+        static const std::map<std::string, std::unique_ptr<BaseCondition>(*)(std::unique_ptr<BaseColumn>, const std::string&)> conditionMap = {
             {"Contain", &makeCondition<Contain>},
             {"NotContain", &makeCondition<NotContain>},
             {"StartWith", &makeCondition<StartWith>},
@@ -43,12 +74,20 @@ public:
             {"LesserThan", &makeCondition<LesserThan>}
         };
 
+        // Find the column type in the map
+        static const std::map<std::string, std::unique_ptr<BaseColumn>(*)()> columnMap = {
+            {"id", &makeColumn<IdColumn>},
+            {"first_name", &makeColumn<FirstNameColumn>},
+            {"last_name", &makeColumn<LastNameColumn>},
+            {"age", &makeColumn<AgeColumn>}
+        };
         auto it = conditionMap.find(conditionVector[4].substr(2, conditionVector[4].size() - 3));
+        auto col = columnMap.find(conditionVector[2].substr(2, conditionVector[2].size() - 3));
         // If found in the map, call the function with the 2 args and return the result
-        if (it != conditionMap.end())
-            return it->second(conditionVector[2].substr(1, conditionVector[2].size() - 1), conditionVector[3].substr(2, conditionVector[3].size() - 3));
+        if (it != conditionMap.end() && col != columnMap.end())
+            return it->second(col->second(), conditionVector[3].substr(2, conditionVector[3].size() - 3));
         else
-            return std::make_unique<Condition>();
+            return std::make_unique<BaseCondition>();
     }
 
     /**
@@ -57,8 +96,18 @@ public:
      * Out: A condition object
     */
     template <typename ConditionType>
-    static std::unique_ptr<Condition> makeCondition(const std::string& arg1, const std::string& arg2) {
+    static std::unique_ptr<BaseCondition> makeCondition(std::unique_ptr<BaseColumn> arg1, const std::string& arg2) {
         return std::make_unique<ConditionType>(arg1, arg2);
+    }
+
+    /**
+     * Make a column object
+     * In: The column type
+     * Out: A column object
+    */
+    template <typename ColumnType>
+    static std::unique_ptr<BaseColumn> makeColumn() {
+        return std::make_unique<ColumnType>();
     }
  
     /**
@@ -67,15 +116,14 @@ public:
      * In: A string from the JSON request
      * Out: The filter object
     */
-    std::unique_ptr<Filter_<>> makeFilterString(std::string requestFilter)
+    std::unique_ptr<Filter_<>> makeFilterString(int starting_index, const std::string& requestFilter)
     {
-        //Filter_ new_filter;
         bool inFilter = false;
         int inFilterCount = 0;
         int start = 0;
         std::unique_ptr<Filter_<>> mfilter = std::make_unique<Filter_<>>();
         std::string filter;
-        for (int i = 0; i < requestFilter.size(); i++)
+        for (int i = starting_index; i < requestFilter.size(); i++)
         {
             if (requestFilter[i] == '[')
             {
@@ -99,7 +147,7 @@ public:
                     if (filter_vector[1] == " 'condition'")
                         filter_to_add->add_new_condition(conditionConverter(split(std::move(filter), ",")));
                     if (filter_vector[1] == " 'filter'")
-                        filter_to_add = makeFilterString(filter);
+                        filter_to_add = makeFilterString(start + 1, requestFilter);
                     if (filter_vector[0] == "'OR'")
                         filter_to_add->setOperator(" OR ");
                     if (filter_vector[0] == "'AND'")
@@ -111,25 +159,7 @@ public:
         return mfilter;
     }
 
-    /**
-     * Constructor: Convert a JSON request to a SQL request
-    */
-    JsonToSQLCOnverter(std::string action, std::string table, std::string requestFilter)
-    {
-        if (action == "SELECT"){
-            Select_ select(table, *makeFilterString(requestFilter));
-            requestString = select.retrieveSelectString();
-        }
-    }
-    ~JsonToSQLCOnverter() = default;
-
-    std::string retrieveRequestString()
-    {
-        return requestString;
-    }
-
-
-private:
     std::string requestString = "";
-    std::string filterString = "";
 };
+
+#endif

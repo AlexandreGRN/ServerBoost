@@ -1,14 +1,17 @@
-#pragma once
+#ifndef CONDITION_HPP
+#define CONDITION_HPP
 
-#include "../../libraries.hpp"
-#include "../mysql_orm_libraries.hpp"
+#include "BaseCondition.hpp"
 
-class Condition
+template <typename CRTP>
+class Condition : public BaseCondition
 {
 public:
-    Condition() = default;
-    ~Condition() = default;
-
-    virtual std::string retrieveConditionString(){return "";}
-    std::string retrieveOperator(){return "";}
+    std::string retrieveConditionString()
+    {
+        return static_cast<CRTP*>(this)->retrieveConditionString();
+    }
+    std::string retrieveOperator() const {return "";}
 };
+
+#endif

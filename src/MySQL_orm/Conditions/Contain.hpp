@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef CONTAIN_HPP
+#define CONTAIN_HPP
 
-class Contain : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class Contain : public Condition<Contain>
 {
 public:
-    Contain(std::string column, std::string value)
+    Contain(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " LIKE '%" + value + "%'";
+        conditionString = column->getColumn() + " LIKE '%" + value + "%'";
     }
     ~Contain() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

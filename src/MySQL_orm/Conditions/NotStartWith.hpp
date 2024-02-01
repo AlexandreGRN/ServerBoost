@@ -1,18 +1,25 @@
-#include "../../libraries.hpp"
-#include "Condition.hpp"
+#ifndef NOTSTARTWITH_HPP
+#define NOTSTARTWITH_HPP
 
-class NotStartWith : public Condition
+#include "Condition.hpp"
+#include "../Columns/BaseColumn.hpp"
+
+class NotStartWith : public Condition<NotStartWith>
 {
 public:
-    NotStartWith(std::string column, std::string value)
+    NotStartWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
     {
-        conditionString = column + " NOT LIKE '" + value + "%'";
+        conditionString = column->getColumn() + " NOT LIKE '" + value + "%'";
     }
     ~NotStartWith() = default;
 
-    std::string retrieveConditionString() override
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
+
+private:
     std::string conditionString = "";
 };
+
+#endif

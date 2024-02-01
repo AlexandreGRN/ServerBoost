@@ -76,12 +76,12 @@ private:
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) <<  "status: 200\n";
         }
-        if (request_.target() == "/users_rapidjson" && request_.method() == boost::beast::http::verb::get)
+        else if (request_.target() == "/users" && request_.method() == boost::beast::http::verb::get)
         {
             // MySQLConnector
             MySQLConnector connector;
             connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_all_user();
+            std::vector<std::vector<std::string>> users = connector.select_from_db("['', 'condition', 'id', '0', 'GreaterThan']");
             connector.disconnect();
 
             // Make response
@@ -89,30 +89,29 @@ private:
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) << str;
         }
-        if (request_.target() == "/users_boostjson" && request_.method() == boost::beast::http::verb::get)
+        else if (request_.target() == "/users_children" && request_.method() == boost::beast::http::verb::get)
         {
             // MySQLConnector
             MySQLConnector connector;
             connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_all_user();
+            std::vector<std::vector<std::string>> users = connector.select_from_db("['', 'condition', 'id', '0', 'GreaterThan'], ['AND', 'condition', 'age', '18', 'LesserThan'], ['OR', 'condition', 'last_name', 'child', 'StartWith']");
             connector.disconnect();
 
             // Make response
-            boost::json::array jsonArray;
-            boost::json::object jsonObject;
-            
-            for (int i = 0; i < users.size(); i++)
-            {
-                boost::json::object jsonObject;
-                jsonObject["ID"]         = users[i][0];
-                jsonObject["first_name"] = users[i][1];
-                jsonObject["last_name"]  = users[i][2];
-                jsonArray.push_back(jsonObject);
-            }
+            std::string str = converter.ToJson(users);
+            response_.set(boost::beast::http::field::content_type, "text/html");
+            boost::beast::ostream(response_.body()) << str;
+        }
+        else if (request_.target() == "/users_adults" && request_.method() == boost::beast::http::verb::get)
+        {
+            // MySQLConnector
+            MySQLConnector connector;
+            connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
+            std::vector<std::vector<std::string>> users = connector.select_from_db("['AND', 'condition', 'age', '18', 'GreaterThan']");
+            connector.disconnect();
 
-            boost::json::value jsonValue = jsonArray;
-            std::string str = serialize(jsonValue);
-            std::cout << str << std::endl;
+            // Make response
+            std::string str = converter.ToJson(users);
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) << str;
         }
