@@ -7,5 +7,7 @@
 #include "FirstNameColumn.hpp"
 #include "IdColumn.hpp"
 #include "LastNameColumn.hpp"
+#include "GenreColumn.hpp"
+#include "BuildingColumn.hpp"
 
 #endif

@@ -39,6 +39,11 @@ public:
             row.push_back(res->getString("first_name"));
             row.push_back(res->getString("last_name"));
             row.push_back(res->getString("age"));
+            if (res->getString("genre") == "0")
+                row.push_back("M");
+            else
+                row.push_back("F");
+            row.push_back(res->getString("building"));
             table.push_back(row);
         }
         delete res;
