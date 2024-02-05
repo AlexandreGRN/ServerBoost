@@ -1,6 +1,3 @@
-#ifndef MYSQL_ORM_LIBRARIES_HPP
-#define MYSQL_ORM_LIBRARIES_HPP
-
 // Actions
 #include "Actions/Select.hpp"
 
@@ -29,5 +26,3 @@
 #include "Columns/LastNameColumn.hpp"
 #include "Columns/FirstNameColumn.hpp"
 #include "Columns/AgeColumn.hpp"
-
-#endif

@@ -7,7 +7,7 @@ class Filter_
 {
 public:
     // Multiple conditions constructor
-    Filter_(Args... args)
+    explicit Filter_(Args... args)
     {
         // Make minor filter
         if (sizeof...(args) == 1)

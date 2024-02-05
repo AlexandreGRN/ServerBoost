@@ -7,7 +7,7 @@ template <typename Column>
 class NotEndWith
 {
 public:
-    NotEndWith(std::string value) requires HasGetColumn<Column>
+    explicit NotEndWith(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

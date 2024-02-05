@@ -7,7 +7,7 @@ template <typename Column>
 class EqualTo
 {
 public:
-    EqualTo(const std::string& value) requires HasGetColumn<Column>
+    explicit EqualTo(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

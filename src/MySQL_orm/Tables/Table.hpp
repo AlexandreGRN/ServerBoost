@@ -12,7 +12,7 @@ enum class TableType
 class Table
 {
 public:
-    std::string getTable(const TableType& tableType) const
+    const std::string getTable(const TableType& tableType) const
     {
         if (tableType == TableType::User)
             return "user";

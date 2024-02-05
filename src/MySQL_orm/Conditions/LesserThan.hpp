@@ -7,7 +7,7 @@ template <typename Column>
 class LesserThan
 {
 public:
-    LesserThan(const std::string& value) requires HasGetColumn<Column>
+    explicit LesserThan(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

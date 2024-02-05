@@ -7,7 +7,7 @@ template <typename Column>
 class GreaterThan
 {
 public:
-    GreaterThan(const std::string& value) requires HasGetColumn<Column>
+    explicit GreaterThan(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

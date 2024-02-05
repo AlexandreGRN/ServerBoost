@@ -21,7 +21,7 @@ public:
 
     Select_(const TableType& tableType, Args... args)
     {
-        SelectString = "SELECT * from " + Table{}.getTable(tableType) + " WHERE ";
+        SelectString = "SELECT * FROM " + Table().getTable(tableType) + " WHERE ";
         processArgs(args...);
     }
     ~Select_() = default;

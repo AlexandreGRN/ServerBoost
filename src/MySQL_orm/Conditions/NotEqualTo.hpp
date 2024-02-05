@@ -7,7 +7,7 @@ template <typename Column>
 class NotEqualTo
 {
 public:
-    NotEqualTo(const std::string& value) requires HasGetColumn<Column>
+    explicit NotEqualTo(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

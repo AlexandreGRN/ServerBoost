@@ -7,7 +7,7 @@ template <typename Column>
 class Contain
 {
 public:
-    Contain(const std::string& value) requires HasGetColumn<Column>
+    explicit Contain(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

@@ -7,7 +7,7 @@ template <typename Column>
 class NotContain
 {
 public:
-    NotContain(const std::string& value) requires HasGetColumn<Column>
+    explicit NotContain(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

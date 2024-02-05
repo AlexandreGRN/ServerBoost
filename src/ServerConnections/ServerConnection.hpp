@@ -6,7 +6,7 @@ template<typename ConnectionManager>
 class ServerConnection : public std::enable_shared_from_this<ServerConnection<ConnectionManager>>
 {
 public:
-    ServerConnection(boost::asio::ip::tcp::socket socket, ConnectionManager connection_man) : socket_(std::move(socket)), connection_man(connection_man){}
+    ServerConnection(boost::asio::ip::tcp::socket socket, const ConnectionManager& connection_man) : socket_(std::move(socket)), connection_man(connection_man){}
     ~ServerConnection() = default;
 
     // Start server
@@ -104,7 +104,6 @@ private:
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) << str;
         }
-        
         else
         {
             response_.result(boost::beast::http::status::not_found);

@@ -7,7 +7,7 @@ class ANDFilter_
 {
 public:
     // Multiple conditions constructor
-    ANDFilter_(Args... args)
+    explicit ANDFilter_(Args... args)
     {
         // Make minor filter
         if (sizeof...(args) == 1)

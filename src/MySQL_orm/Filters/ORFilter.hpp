@@ -7,7 +7,7 @@ class ORFilter_
 {
 public:
     // Multiple conditions constructor
-    ORFilter_(Args... args)
+    explicit ORFilter_(Args... args)
     {
         // Make minor filter
         if (sizeof...(args) == 1)

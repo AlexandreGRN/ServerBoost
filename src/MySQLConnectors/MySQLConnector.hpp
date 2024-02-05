@@ -8,7 +8,7 @@ public:
     MySQLConnector() = default;
     ~MySQLConnector() = default;
 
-    void connect(std::string ip, std::string user, std::string password, std::string database)
+    void connect(const std::string& ip, std::string user, std::string password, std::string database)
     {
         driver = get_driver_instance();
         con = driver->connect("tcp://" + ip, user, password);
