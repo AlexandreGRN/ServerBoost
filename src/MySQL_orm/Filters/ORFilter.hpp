@@ -4,13 +4,11 @@
 #include "../../libraries.hpp"
 
 template <typename... Args>
-class ORFilter_ final
+class ORFilter_
 {
 public:
-    /**
-     * Multiple conditions or filters constructor (variadic)
-     */
-    explicit ORFilter_(Args... args)
+    // Multiple conditions constructor
+    ORFilter_(Args... args)
     {
         // Make minor filter
         if (sizeof...(args) == 1)
@@ -18,68 +16,36 @@ public:
             processArgs(args...);
         }
         // Make major filter
-        if (sizeof...(args) > 1)
+        else
         {
             processArgs(args...);
         }
     }
     ~ORFilter_() = default;
 
-    /**
-     * Retrieve the filter string
-     * Out: "(x < 0 AND y < 0 AND z < 0)" (<- example)
-    */
-    inline std::string retrieveConditionString()
+    std::string retrieveConditionString() const
     {
-        return  "(" + filterString + ")";
+        return "(" + filterString + ")";
     }
 
-    /**
-     * Retrieve the filter operator
-     * Out: " AND " or " OR "
-    */
-    inline std::string retrieveOperator()
+    std::string retrieveOperator() const
     {
-        return operator_;
-    }
-
-    /**
-     * Add a new condition to the filter OR a new sub-filter to the filter
-     * In: A unique pointer to a condition or a filter
-    */
-    template <typename T>
-    void add_new_condition(std::unique_ptr<T> arg)
-    {
-        if (isFirstCondition)
-            isFirstCondition = false;
+        if (operator_ == OperatorType::And)
+            return " AND ";
         else
-            filterString += arg->retrieveOperator();
-        filterString += arg->retrieveConditionString();
-    }
-
-    void setOperator(const std::string& op)
-    {
-        if (op == " AND " || op == " OR ")
-            operator_ = op;
+            return " OR ";
     }
 
 private:
 
-    /**
-     * Make the filter with the arguments (as string)
-     * In: A condition string
-     */
-    inline void makeGroupConditionString(const std::string& arg)
+    // minor filter
+    void makeGroupConditionString(const std::string& arg)
     {
         filterString += arg;
     }
 
-    /**
-     * Fill the filter with the arguments (as Condition or Filter object)
-     * In: A condition or a filter object
-     */ 
     template<typename T>
-    void makeGroupConditionString(T& arg)
+    void makeGroupConditionString(const T& arg)
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -88,27 +54,22 @@ private:
         filterString += arg.retrieveConditionString();
     }
 
-    /**
-     * Variadic template to process the arguments
-     * In: A list of arguments
-     */
+    // Create the filter strings
     void processArgs(Args... args) {processSingleArg(args...);}
-    void processSingleArg(){filterString += ")";}
     template <typename T>
-    void processSingleArg(const T& arg) {
+    void processSingleArg(const T arg) {
         makeGroupConditionString(arg);
-        filterString += ")";
     }
     template <typename T, typename... Rest>
-    void processSingleArg(const T& arg, Rest... rest) {
+    void processSingleArg(const T arg, Rest... rest) {
         makeGroupConditionString(arg);
         processSingleArg(rest...);
     }
 
-    // Properties
-    std::string operator_ = " AND ";
+    OperatorType operator_ = Or;
     std::string filterString = "";
     bool isFirstCondition = true;
 };
+
 
 #endif

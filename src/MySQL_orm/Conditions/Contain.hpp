@@ -1,25 +1,48 @@
 #ifndef CONTAIN_HPP
 #define CONTAIN_HPP
 
-#include "Condition.hpp"
-#include "../Columns/BaseColumn.hpp"
+#include "../Column.hpp"
 
-class Contain : public Condition<Contain>
+template <typename Column>
+class Contain
 {
 public:
-    Contain(const std::unique_ptr<BaseColumn>& column, const std::string& value)
+    Contain(const std::string& value)
     {
-        conditionString = column->getColumn() + " LIKE '%" + value + "%'";
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID LIKE '%" + value + "%'";
+            break;
+        case ColumnType::FirstName:
+            conditionString = "first_name LIKE '%" + value + "%'";
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name LIKE '%" + value + "%'";
+            break;
+        case ColumnType::Age:
+            conditionString = "age LIKE '%" + value + "%'";
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre LIKE '%" + value + "%'";
+            break;
+        case ColumnType::Building:
+            conditionString = "building LIKE '%" + value + "%'";
+            break;
+        default:
+            break;
+        }
     }
     ~Contain() = default;
 
-    std::string retrieveConditionString() const
+    const std::string& retrieveConditionString() const
     {
         return conditionString;
     }
-
-private:
+    
+    std::string retrieveOperator() const { return "";}
     std::string conditionString = "";
 };
+
 
 #endif

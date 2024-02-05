@@ -1,15 +1,37 @@
 #ifndef NOTSTARTWITH_HPP
 #define NOTSTARTWITH_HPP
 
-#include "Condition.hpp"
-#include "../Columns/BaseColumn.hpp"
+#include "../Column.hpp"
 
-class NotStartWith : public Condition<NotStartWith>
+template <typename Column>
+class NotStartWith
 {
 public:
-    NotStartWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
+    NotStartWith(const std::string& value)
     {
-        conditionString = column->getColumn() + " NOT LIKE '" + value + "%'";
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID NOT LIKE '" + value + "%'";
+            break;
+        case ColumnType::FirstName:
+            conditionString = "first_name NOT LIKE '" + value + "%'";
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name NOT LIKE '" + value + "%'";
+            break;
+        case ColumnType::Age:
+            conditionString = "age NOT LIKE '" + value + "%'";
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre NOT LIKE '" + value + "%'";
+            break;
+        case ColumnType::Building:
+            conditionString = "building NOT LIKE '" + value + "%'";
+            break;
+        default:
+            break;
+        }
     }
     ~NotStartWith() = default;
 
@@ -17,9 +39,9 @@ public:
     {
         return conditionString;
     }
-
-private:
+    std::string retrieveOperator() const { return "";}
     std::string conditionString = "";
 };
+
 
 #endif

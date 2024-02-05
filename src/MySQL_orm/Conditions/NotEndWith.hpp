@@ -1,15 +1,37 @@
 #ifndef NOT_END_WITH_HPP
 #define NOT_END_WITH_HPP
 
-#include "Condition.hpp"
-#include "../Columns/BaseColumn.hpp"
+#include "../Column.hpp"
 
-class NotEndWith : public Condition<NotEndWith>
+template <typename Column>
+class NotEndWith
 {
 public:
-    NotEndWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
+    NotEndWith(std::string value)
     {
-        conditionString = column->getColumn() + " NOT LIKE '%" + value + "'";
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID NOT LIKE '%" + value + "'";
+            break;
+        case ColumnType::FirstName: 
+            conditionString = "first_name NOT LIKE '%" + value + "'";
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name NOT LIKE '%" + value + "'";
+            break;
+        case ColumnType::Age:
+            conditionString = "age NOT LIKE '%" + value + "'";
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre NOT LIKE '%" + value + "'";
+            break;
+        case ColumnType::Building:
+            conditionString = "building NOT LIKE '%" + value + "'";
+            break;
+        default:
+            break;
+        }
     }
     ~NotEndWith() = default;
 
@@ -17,9 +39,9 @@ public:
     {
         return conditionString;
     }
-
-private:
+    std::string retrieveOperator() const { return "";}
     std::string conditionString = "";
 };
+
 
 #endif

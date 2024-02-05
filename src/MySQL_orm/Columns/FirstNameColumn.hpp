@@ -1,14 +1,14 @@
 #ifndef MYSQL_ORM_COLUMNS_FIRSTNAMECOLUMN_HPP
 #define MYSQL_ORM_COLUMNS_FIRSTNAMECOLUMN_HPP
 
-#include "Column.hpp"
+#include "../Column.hpp"
 
-class FirstNameColumn : public Column<FirstNameColumn>
+class FirstNameColumn
 {
 public:
-    std::string getColumn() const
+    ColumnType getColumn() const
     {
-        return "first_name";
+        return ColumnType::FirstName;
     }
 };
 

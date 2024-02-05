@@ -1,14 +1,14 @@
 #ifndef GENRE_COLUMN_HPP
 #define GENRE_COLUMN_HPP
 
-#include "Column.hpp"
+#include "../Column.hpp"
 
-class GenreColumn : public Column<GenreColumn>
+class GenreColumn
 {
 public:
-    std::string getColumn() const
+    ColumnType getColumn() const
     {
-        return "genre";
+        return ColumnType::Genre;
     }
 };
 

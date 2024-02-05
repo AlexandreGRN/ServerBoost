@@ -1,25 +1,48 @@
 #ifndef NOT_CONTAIN_HPP
 #define NOT_CONTAIN_HPP
 
-#include "Condition.hpp"
-#include "../Columns/BaseColumn.hpp"
+#include "../Column.hpp"
 
-class NotContain : public Condition<NotContain>
+template <typename Column>
+class NotContain
 {
 public:
-    NotContain(const std::unique_ptr<BaseColumn>& column, const std::string& value)
+    NotContain(const std::string& value)
     {
-        conditionString = column->getColumn() + " NOT LIKE '%" + value + "%'";
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID NOT LIKE '%" + value + "%'";
+            break;
+        case ColumnType::FirstName:
+            conditionString = "first_name NOT LIKE '%" + value + "%'";
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name NOT LIKE '%" + value + "%'";
+            break;
+        case ColumnType::Age:
+            conditionString = "age NOT LIKE '%" + value + "%'";
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre NOT LIKE '%" + value + "%'";
+            break;
+        case ColumnType::Building:
+            conditionString = "building NOT LIKE '%" + value + "%'";
+            break;
+        default:
+            break;
+        }
     }
     ~NotContain() = default;
 
-    std::string retrieveConditionString() const
+    const std::string& retrieveConditionString() const
     {
         return conditionString;
     }
-
-private:
+    
+    std::string retrieveOperator() const { return "";}
     std::string conditionString = "";
 };
+
 
 #endif

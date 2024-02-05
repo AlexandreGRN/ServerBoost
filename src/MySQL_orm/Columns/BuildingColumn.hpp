@@ -1,14 +1,14 @@
 #ifndef BUILDINGCOLUMN_HPP
 #define BUILDINGCOLUMN_HPP
 
-#include "Column.hpp"
+#include "../Column.hpp"
 
-class BuildingColumn : public Column<BuildingColumn>
+class BuildingColumn
 {
 public:
-    std::string getColumn() const
+    ColumnType getColumn() const
     {
-        return "building";
+        return ColumnType::Building;
     }
 };
 

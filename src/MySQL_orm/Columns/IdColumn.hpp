@@ -1,14 +1,14 @@
 #ifndef ID_COLUMN_HPP
 #define ID_COLUMN_HPP
 
-#include "Column.hpp"
+#include "../Column.hpp"
 
-class IdColumn : public Column<IdColumn>
+class IdColumn
 {
 public:
-    std::string getColumn() const
+    ColumnType getColumn() const
     {
-        return "id";
+        return ColumnType::Id;
     }
 };
 

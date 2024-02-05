@@ -1,25 +1,47 @@
 #ifndef NOT_EQUAL_TO_HPP
 #define NOT_EQUAL_TO_HPP
 
-#include "Condition.hpp"
-#include "../Columns/BaseColumn.hpp"
+#include "../Column.hpp"
 
-class NotEqualTo : public Condition<NotEqualTo>
+template <typename Column>
+class NotEqualTo
 {
 public:
-    NotEqualTo(const std::unique_ptr<BaseColumn>& column, const std::string& value)
+    NotEqualTo(const std::string& value)
     {
-        conditionString = column->getColumn() + " != " + value;
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID != " + value;
+            break;
+        case ColumnType::FirstName:
+            conditionString = "first_name != " + value;
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name != " + value;
+            break;
+        case ColumnType::Age:
+            conditionString = "age != " + value;
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre != " + value;
+            break;
+        case ColumnType::Building:
+            conditionString = "building != " + value;
+            break;
+        default:
+            break;
+        }
     }
-    ~NotEqualTo() = default;
 
+    ~NotEqualTo() = default;
     std::string retrieveConditionString() const
     {
         return conditionString;
     }
-
-private:
+    std::string retrieveOperator() const { return "";}
     std::string conditionString = "";
 };
+
 
 #endif

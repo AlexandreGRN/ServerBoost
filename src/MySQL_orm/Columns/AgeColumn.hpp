@@ -1,15 +1,16 @@
 #ifndef AGE_COLUMN_HPP
 #define AGE_COLUMN_HPP
 
-#include "Column.hpp"
+#include "../Column.hpp"
 
-class AgeColumn : public Column<AgeColumn>
+class AgeColumn
 {
 public:
-    std::string getColumn() const
+    ColumnType getColumn() const
     {
-        return "age";
+        return ColumnType::Age;
     }
 };
+
 
 #endif

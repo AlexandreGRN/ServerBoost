@@ -81,7 +81,8 @@ private:
             // MySQLConnector
             MySQLConnector connector;
             connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_from_db("['', 'condition', 'id', '0', 'GreaterThan']");
+            Select_ select(TableType::User, Filter_(Filter_(GreaterThan<IdColumn>("1"))));
+            std::vector<std::vector<std::string>> users = connector.select_from_db(select);
             connector.disconnect();
 
             // Make response
@@ -94,7 +95,8 @@ private:
             // MySQLConnector
             MySQLConnector connector;
             connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_from_db("['', 'condition', 'id', '0', 'GreaterThan'], ['AND', 'condition', 'age', '18', 'LesserThan'], ['OR', 'condition', 'last_name', 'child', 'StartWith']");
+            Select_ select(TableType::User, Filter_(Filter_(GreaterThan<IdColumn>("0")), ANDFilter_(Filter_(GreaterThan<AgeColumn>("18")), ORFilter_(StartWith<LastNameColumn>("child")))));
+            std::vector<std::vector<std::string>> users = connector.select_from_db(select);
             connector.disconnect();
 
             // Make response
@@ -102,45 +104,7 @@ private:
             response_.set(boost::beast::http::field::content_type, "text/html");
             boost::beast::ostream(response_.body()) << str;
         }
-        else if (request_.target() == "/users_adults" && request_.method() == boost::beast::http::verb::get)
-        {
-            // MySQLConnector
-            MySQLConnector connector;
-            connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_from_db("['AND', 'condition', 'age', '18', 'GreaterThan']");
-            connector.disconnect();
-
-            // Make response
-            std::string str = converter.ToJson(users);
-            response_.set(boost::beast::http::field::content_type, "text/html");
-            boost::beast::ostream(response_.body()) << str;
-        }
-        else if (request_.target() == "/maleadultorbuildinga" && request_.method() == boost::beast::http::verb::get)
-        {
-            // MySQLConnector
-            MySQLConnector connector;
-            connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_from_db("['', 'filter', ['', 'condition', 'age', '17', 'GreaterThan'], ['AND', 'condition', 'genre', '0', 'EqualTo']], ['OR', 'condition', 'building', 'A', 'StartWith']");
-            connector.disconnect();
-
-            // Make response
-            std::string str = converter.ToJson(users);
-            response_.set(boost::beast::http::field::content_type, "text/html");
-            boost::beast::ostream(response_.body()) << str;
-        }
-        else if (request_.target() == "/fabata" && request_.method() == boost::beast::http::verb::get)
-        {
-            // MySQLConnector
-            MySQLConnector connector;
-            connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            std::vector<std::vector<std::string>> users = connector.select_from_db("['', 'filter', ['', 'condition', 'age', '17', 'GreaterThan'], ['AND', 'condition', 'genre', '1', 'EqualTo'], ['AND', 'condition', 'building', 'A', 'StartWith']], ['OR', 'filter', ['', 'condition', 'age', '18', 'LesserThan'], ['AND', 'condition', 'genre', '1', 'EqualTo']], ['OR', 'condition', 'id', '1', 'EqualTo']");
-            connector.disconnect();
-
-            // Make response
-            std::string str = converter.ToJson(users);
-            response_.set(boost::beast::http::field::content_type, "text/html");
-            boost::beast::ostream(response_.body()) << str;
-        }
+        
         else
         {
             response_.result(boost::beast::http::status::not_found);

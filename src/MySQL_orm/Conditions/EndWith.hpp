@@ -1,15 +1,37 @@
 #ifndef END_WITH_HPP
 #define END_WITH_HPP
 
-#include "Condition.hpp"
-#include "../Columns/BaseColumn.hpp"
+#include "../Column.hpp"
 
-class EndWith : public Condition<EndWith>
+template <typename Column>
+class EndWith
 {
 public:
-    EndWith(const std::unique_ptr<BaseColumn>& column, const std::string& value)
+    EndWith(const std::string& value)
     {
-        conditionString = column->getColumn() + " LIKE '%" + value + "'";
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID LIKE '%" + value + "'";
+            break;
+        case ColumnType::FirstName:
+            conditionString = "first_name LIKE '%" + value + "'";
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name LIKE '%" + value + "'";
+            break;
+        case ColumnType::Age:
+            conditionString = "age LIKE '%" + value + "'";
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre LIKE '%" + value + "'";
+            break;
+        case ColumnType::Building:
+            conditionString = "building LIKE '%" + value + "'";
+            break;
+        default:
+            break;
+        }
     }
     ~EndWith() = default;
 
@@ -17,9 +39,9 @@ public:
     {
         return conditionString;
     }
-
-private:
+    std::string retrieveOperator() const { return "";}
     std::string conditionString = "";
 };
+
 
 #endif

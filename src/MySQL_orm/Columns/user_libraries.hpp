@@ -1,5 +1,4 @@
-#include "BaseColumn.hpp"
-#include "Column.hpp"
+#include "../Column.hpp"
 #include "AgeColumn.hpp"
 #include "FirstNameColumn.hpp"
 #include "IdColumn.hpp"

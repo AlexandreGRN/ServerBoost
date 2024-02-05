@@ -2,15 +2,21 @@
 #define TABLE_HPP
 
 #include "../../libraries.hpp"
-#include "BaseTable.hpp"
 
-template <typename CRTP>
-class Table : public BaseTable
+enum class TableType
+{
+    User
+};
+
+
+class Table
 {
 public:
-    std::string getTable()
+    std::string getTable(const TableType& tableType) const
     {
-        return static_cast<CRTP*>(this)->getTable();
+        if (tableType == TableType::User)
+            return "user";
+        return "";
     }
 };
 

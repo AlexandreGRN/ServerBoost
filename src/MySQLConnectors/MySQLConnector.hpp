@@ -1,6 +1,6 @@
 #include "../libraries.hpp"
 #include "../MySQL_orm/mysql_orm_libraries.hpp"
-#include "../MySQL_orm/Actions/SelectFilter.hpp"
+#include "../MySQL_orm/Actions/Select.hpp"
 
 class MySQLConnector
 {
@@ -20,16 +20,13 @@ public:
         delete con;
     }
 
-    std::vector<std::vector<std::string>> select_from_db(const std::string& filter)
+    std::vector<std::vector<std::string>> select_from_db(const auto& select)
     {
         std::vector<std::vector<std::string>> table;
         
-        //std::string test = "['', 'condition', 'ID', '1', 'EqualTo'], ['OR', 'condition', 'ID', '0', 'GreaterThan'], ['OR', 'filter', ['', 'condition', 'ID', '1', 'EqualTo'], ['AND', 'condition', 'ID', '0', 'GreaterThan']]";
-        SelectFilter converter(Select_{}, UserTable{}, filter);
+        std::cout << select.retrieveSelectString() << std::endl;   
 
-        std::cout << converter.retrieveRequestString() << std::endl;
-
-        pstmt = con->prepareStatement(converter.retrieveRequestString());
+        pstmt = con->prepareStatement(select.retrieveSelectString());
         res = pstmt->executeQuery();
         res->beforeFirst();
         while (res->next())
