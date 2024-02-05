@@ -7,7 +7,7 @@ template <typename Column>
 class NotContain
 {
 public:
-    NotContain(const std::string& value)
+    NotContain(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {
@@ -35,7 +35,7 @@ public:
     }
     ~NotContain() = default;
 
-    const std::string& retrieveConditionString() const
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }

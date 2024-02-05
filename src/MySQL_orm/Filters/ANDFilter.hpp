@@ -44,7 +44,7 @@ private:
     }
 
     template<typename T>
-    void makeGroupConditionString(const T& arg)
+    void makeGroupConditionString(const T& arg) requires HasFilterFunction<T>
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -56,11 +56,11 @@ private:
     // Create the filter strings
     void processArgs(Args... args) {processSingleArg(args...);}
     template <typename T>
-    void processSingleArg(const T arg) {
+    void processSingleArg(const T arg) requires HasFilterFunction<T> {
         makeGroupConditionString(arg);
     }
     template <typename T, typename... Rest>
-    void processSingleArg(const T arg, Rest... rest) {
+    void processSingleArg(const T arg, Rest... rest) requires HasFilterFunction<T> {
         makeGroupConditionString(arg);
         processSingleArg(rest...);
     }

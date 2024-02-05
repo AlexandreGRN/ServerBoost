@@ -9,6 +9,12 @@ enum OperatorType
     Or
 };
 
+template <typename T>
+concept HasFilterFunction = requires(T t) {
+    { t.retrieveConditionString() } -> std::same_as<std::string>;
+    { t.retrieveOperator() } -> std::same_as<std::string>;
+};
+
 template <typename... Args>
 class Select_ {
 public:
@@ -27,7 +33,7 @@ public:
 
 private:
     template <typename T>
-    void makeFilterBody(const T& arg)
+    void makeFilterBody(const T& arg) requires HasFilterFunction<T>
     {
         if (isFirstCondition)
             isFirstCondition = false;
@@ -39,12 +45,12 @@ private:
     // Create the vector of argument strings
     void processArgs(Args... args) {processSingleArg(args...);}
     template <typename T>
-    void processSingleArg(const T& arg) {
+    void processSingleArg(const T& arg) requires HasFilterFunction<T> {
         makeFilterBody(arg);
     }
 
     template <typename T, typename... Rest>
-    void processSingleArg(const T& arg, Rest... rest) {
+    void processSingleArg(const T& arg, Rest... rest) requires HasFilterFunction<T> {
         makeFilterBody(arg);
         processSingleArg(rest...);
     }

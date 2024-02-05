@@ -7,7 +7,7 @@ template <typename Column>
 class EqualTo
 {
 public:
-    EqualTo(const std::string& value)
+    EqualTo(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {
@@ -34,7 +34,7 @@ public:
         }
     }
 
-    const std::string& retrieveConditionString() const
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }

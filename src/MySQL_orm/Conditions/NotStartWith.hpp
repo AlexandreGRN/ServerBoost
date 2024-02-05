@@ -7,7 +7,7 @@ template <typename Column>
 class NotStartWith
 {
 public:
-    NotStartWith(const std::string& value)
+    NotStartWith(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

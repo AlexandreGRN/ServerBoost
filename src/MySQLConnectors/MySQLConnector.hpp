@@ -23,9 +23,6 @@ public:
     std::vector<std::vector<std::string>> select_from_db(const auto& select)
     {
         std::vector<std::vector<std::string>> table;
-        
-        std::cout << select.retrieveSelectString() << std::endl;   
-
         pstmt = con->prepareStatement(select.retrieveSelectString());
         res = pstmt->executeQuery();
         res->beforeFirst();

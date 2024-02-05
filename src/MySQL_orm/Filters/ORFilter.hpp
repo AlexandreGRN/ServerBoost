@@ -1,6 +1,5 @@
 #ifndef ORFILTER_HPP
 #define ORFILTER_HPP
-
 #include "../../libraries.hpp"
 
 template <typename... Args>
@@ -57,7 +56,7 @@ private:
     // Create the filter strings
     void processArgs(Args... args) {processSingleArg(args...);}
     template <typename T>
-    void processSingleArg(const T arg) {
+    void processSingleArg(const T arg){
         makeGroupConditionString(arg);
     }
     template <typename T, typename... Rest>

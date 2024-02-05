@@ -7,7 +7,7 @@ template <typename Column>
 class LesserThan
 {
 public:
-    LesserThan(const std::string& value)
+    LesserThan(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {
@@ -35,7 +35,7 @@ public:
     }
     ~LesserThan() = default;
 
-    const std::string& retrieveConditionString() const
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }

@@ -7,7 +7,7 @@ template <typename Column>
 class StartWith
 {
 public:
-    StartWith(const std::string& value)
+    StartWith(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

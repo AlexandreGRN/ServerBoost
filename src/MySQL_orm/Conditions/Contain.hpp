@@ -7,7 +7,7 @@ template <typename Column>
 class Contain
 {
 public:
-    Contain(const std::string& value)
+    Contain(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {
@@ -35,7 +35,7 @@ public:
     }
     ~Contain() = default;
 
-    const std::string& retrieveConditionString() const
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }

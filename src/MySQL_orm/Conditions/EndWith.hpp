@@ -7,7 +7,7 @@ template <typename Column>
 class EndWith
 {
 public:
-    EndWith(const std::string& value)
+    EndWith(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {

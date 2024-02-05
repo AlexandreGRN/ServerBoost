@@ -7,7 +7,7 @@ template <typename Column>
 class GreaterThan
 {
 public:
-    GreaterThan(const std::string& value)
+    GreaterThan(const std::string& value) requires HasGetColumn<Column>
     {
         switch (Column{}.getColumn())
         {
@@ -35,7 +35,7 @@ public:
     }
     ~GreaterThan() = default;
 
-    const std::string& retrieveConditionString() const
+    std::string retrieveConditionString() const
     {
         return conditionString;
     }
