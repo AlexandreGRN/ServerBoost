@@ -244,6 +244,7 @@ private:
 };
 
 
+template <typename Column, typename Value>
 class LesserThan : public Condition<LesserThan>
 {
 public:

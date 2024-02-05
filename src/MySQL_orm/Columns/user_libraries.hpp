@@ -1,6 +1,3 @@
-#ifndef MYSQL_ORM_COLUMNS_USER_LIBRARIES_HPP
-#define MYSQL_ORM_COLUMNS_USER_LIBRARIES_HPP
-
 #include "BaseColumn.hpp"
 #include "Column.hpp"
 #include "AgeColumn.hpp"
@@ -9,5 +6,3 @@
 #include "LastNameColumn.hpp"
 #include "GenreColumn.hpp"
 #include "BuildingColumn.hpp"
-
-#endif

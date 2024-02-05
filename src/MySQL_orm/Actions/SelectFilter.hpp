@@ -30,7 +30,7 @@ public:
     }
     ~SelectFilter() = default;
 
-    std::string retrieveRequestString()
+    const std::string& retrieveRequestString() const
     {
         return requestString;
     }
