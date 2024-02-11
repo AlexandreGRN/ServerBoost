@@ -4,10 +4,6 @@
 class Server
 {
 public:
-
-    Server() = default;
-    ~Server() = default;
-
     // Loop forever accepting new connections.
     void http_server(boost::asio::ip::tcp::acceptor& acceptor, boost::asio::ip::tcp::socket& socket)
     {

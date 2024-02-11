@@ -26,3 +26,5 @@
 #include "Columns/LastNameColumn.hpp"
 #include "Columns/FirstNameColumn.hpp"
 #include "Columns/AgeColumn.hpp"
+#include "Columns/BuildingColumn.hpp"
+#include "Columns/GenreColumn.hpp"

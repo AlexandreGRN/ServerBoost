@@ -5,9 +5,6 @@
 class MySQLConnector
 {
 public:
-    MySQLConnector() = default;
-    ~MySQLConnector() = default;
-
     void connect(const std::string& ip, std::string user, std::string password, std::string database)
     {
         driver = get_driver_instance();

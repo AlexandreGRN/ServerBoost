@@ -48,9 +48,9 @@ private:
         response_.version(request_.version());
         response_.keep_alive(false);
 
-        if (request_.method() == boost::beast::http::verb::get || 
-           request_.method() == boost::beast::http::verb::post ||
-            request_.method() == boost::beast::http::verb::put ||
+        if (request_.method() == boost::beast::http::verb::get  ||
+            request_.method() == boost::beast::http::verb::post ||
+            request_.method() == boost::beast::http::verb::put  ||
             request_.method() == boost::beast::http::verb::delete_
           ) // If supported, return OK
         {
@@ -95,7 +95,7 @@ private:
             // MySQLConnector
             MySQLConnector connector;
             connector.connect("127.0.0.1:3306", "user", "1234", "DB1");
-            Select_ select(TableType::User, Filter_(Filter_(GreaterThan<IdColumn>("0")), ANDFilter_(Filter_(GreaterThan<AgeColumn>("18")), ORFilter_(StartWith<LastNameColumn>("child")))));
+            Select_ select(TableType::User, Filter_(Filter_(GreaterThan<IdColumn>("0")), ANDFilter_(Filter_(LesserThan<AgeColumn>("18")), ORFilter_(StartWith<LastNameColumn>("child")))));
             std::vector<std::vector<std::string>> users = connector.select_from_db(select);
             connector.disconnect();
 

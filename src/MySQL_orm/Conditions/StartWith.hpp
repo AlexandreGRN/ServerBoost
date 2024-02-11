@@ -33,6 +33,34 @@ public:
             break;
         }
     }
+    template<typename T>
+    StartWith (const T& value) requires CanToString<T> && HasGetColumn<Column>
+    {
+        switch (Column{}.getColumn())
+        {
+        case ColumnType::Id:
+            conditionString = "ID LIKE '" + std::to_string(value) + "%'";
+            break;
+        case ColumnType::FirstName:
+            conditionString = "first_name LIKE '" + std::to_string(value) + "%'";
+            break;
+        case ColumnType::LastName:
+            conditionString = "last_name LIKE '" + std::to_string(value) + "%'";
+            break;
+        case ColumnType::Age:
+            conditionString = "age LIKE '" + std::to_string(value) + "%'";
+            break;
+        case ColumnType::Genre:
+            conditionString = "genre LIKE '" + std::to_string(value) + "%'";
+            break;
+        case ColumnType::Building:
+            conditionString = "building LIKE '" + std::to_string(value) + "%'";
+            break;
+        default:
+            break;
+        }
+    }
+
     ~StartWith() = default;
 
     std::string retrieveConditionString() const

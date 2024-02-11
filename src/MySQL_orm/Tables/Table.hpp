@@ -8,7 +8,6 @@ enum class TableType
     User
 };
 
-
 class Table
 {
 public:
